@@ -1,0 +1,1072 @@
+/* =============================================================================
+   Maya Okonkwo — Portfolio styles
+
+   How this file is organized (read top to bottom):
+     1. Design tokens (CSS variables) for both light and dark themes
+     2. Base resets and typography
+     3. Reusable pieces (buttons, layout helpers)
+     4. Each section, in the order it appears on the page
+     5. Responsive rules (desktop overrides) at the very end
+
+   The approach is MOBILE-FIRST: the default styles target small phone screens,
+   and the @media block near the bottom layers on the larger-screen layout.
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   1. DESIGN TOKENS
+   Everything color- and spacing-related lives here so the whole site can be
+   re-themed from one place. Dark mode just swaps these values.
+   -------------------------------------------------------------------------- */
+:root {
+  /* Light theme (the default) — warm paper and espresso ink. */
+  --color-bg: #faf6ef;
+  --color-surface: #fffdf8;
+  --color-text: #211c17;
+  --color-muted: #6b6258;
+  --color-accent: #c8552a;
+  --color-accent-soft: #e8c9b3;
+  --color-border: #e6ddcf;
+  --shadow-card: 0 18px 40px -24px rgba(40, 28, 16, 0.45);
+  /* Deeper, softer shadow for the "picked up off the table" card hover. */
+  --shadow-lift: 0 28px 52px -20px rgba(40, 28, 16, 0.55);
+  /* Form validation error color (AA-contrast on the form surface). */
+  --color-error: #c0392b;
+
+  /* Type families */
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Spline Sans", system-ui, sans-serif;
+
+  /* Type scale. Each heading level is defined ONCE here and referenced by class,
+     so every section heading is the same size by construction — add a section,
+     reuse the class, and it lines up with the others. The hero and section-
+     heading sizes are fluid: they grow with the viewport between a floor and a
+     ceiling, so there are no separate mobile/desktop font-size overrides. */
+  --text-hero: clamp(3rem, 11vw, 5.75rem);              /* h1 — hero headline only */
+  --text-heading: clamp(1.9rem, 1.1rem + 3vw, 2.75rem); /* h2 — every section heading */
+  --text-subheading: 1.5rem;                            /* h3 — card titles, etc. */
+
+  /* Spacing scale — geometric ×2 for component gaps (xs → lg), then one larger
+     layout rung (xl) reserved for page-level rhythm. */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: 4rem;
+  --space-xl: 6rem;
+
+  /* Vertical rhythm for every .section — the single knob for how much the page
+     breathes between sections. Set here for small screens and bumped once at the
+     760px breakpoint; every section, present or future, moves with it. */
+  --section-space: var(--space-lg);
+
+  --radius: 16px;
+  --max-width: 1100px;
+
+  /* Animated hero gradient — RETHEME HERE. The background slowly sweeps between
+     these two colors; --hero-gradient-duration sets how slow. (Both colors are
+     kept light enough to hold WCAG AA contrast with the hero text.) */
+  --hero-gradient-from: #faf6ef;
+  --hero-gradient-to: #f3e3cf;
+  --hero-gradient-duration: 16s;
+}
+
+/* Dark theme — applied when <html data-theme="dark">. */
+[data-theme="dark"] {
+  --color-bg: #15110d;
+  --color-surface: #1f1a14;
+  --color-text: #f3ece1;
+  --color-muted: #a99e8e;
+  --color-accent: #e8854f;
+  --color-accent-soft: #4a3322;
+  --color-border: #322a20;
+  --shadow-card: 0 22px 48px -26px rgba(0, 0, 0, 0.75);
+  --shadow-lift: 0 32px 58px -22px rgba(0, 0, 0, 0.85);
+  /* Lighter red so error text stays legible on the dark form surface. */
+  --color-error: #f0938b;
+
+  /* Dark-theme hero gradient (two deep warm tones). */
+  --hero-gradient-from: #15110d;
+  --hero-gradient-to: #2a1d12;
+}
+
+/* -----------------------------------------------------------------------------
+   2. BASE RESET + TYPOGRAPHY
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Native smooth scrolling for the in-page nav links. */
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  /* A soft warm gradient adds depth instead of a flat fill. */
+  background-image: radial-gradient(
+    140% 120% at 80% -10%,
+    var(--color-accent-soft) 0%,
+    transparent 45%
+  );
+  background-attachment: fixed;
+  /* Smoothly cross-fade colors when the theme flips. */
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+p {
+  max-width: 60ch; /* Keep lines comfortable to read. */
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Honor users who ask for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Accessibility: visible focus ring for keyboard users. */
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Skip link — hidden until focused. */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--color-accent);
+  color: #fff;
+  padding: var(--space-xs) var(--space-sm);
+  z-index: 100;
+}
+.skip-link:focus {
+  left: var(--space-sm);
+  top: var(--space-sm);
+}
+
+/* -----------------------------------------------------------------------------
+   3. REUSABLE PIECES
+   -------------------------------------------------------------------------- */
+
+/* Each section shares padding and a centered max-width, and leaves room under
+   the fixed header so smooth-scroll lands in the right place. */
+.section {
+  width: min(100% - 2.5rem, var(--max-width));
+  margin-inline: auto;
+  padding-block: var(--section-space);
+  scroll-margin-top: 6rem;
+}
+
+.section__label {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: var(--space-sm);
+}
+
+/* Section heading — the ONE definition every section's <h2> uses, so they all
+   match in size and spacing. New sections reuse this class and fall into line
+   automatically. (Weight, line-height, and tracking come from the shared h1–h3
+   rule in the typography section.) */
+.section__heading {
+  font-size: var(--text-heading);
+  margin-bottom: var(--space-md);
+}
+
+/* Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.18s ease, background-color 0.2s ease,
+    color 0.2s ease, border-color 0.2s ease;
+}
+.button:hover {
+  transform: translateY(-2px);
+}
+.button--primary {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+.button--ghost {
+  background-color: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+.button--ghost:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.button--full {
+  width: 100%;
+}
+
+/* -----------------------------------------------------------------------------
+   4a. HEADER + NAVIGATION (mobile-first)
+   -------------------------------------------------------------------------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.nav {
+  width: min(100% - 2.5rem, var(--max-width));
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--space-sm);
+}
+
+.nav__brand {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  text-decoration: none;
+  letter-spacing: -0.03em;
+}
+.nav__dot {
+  color: var(--color-accent);
+}
+
+/* Hamburger button — shown on mobile, hidden on desktop. */
+.nav__toggle {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.nav__bar {
+  display: block;
+  height: 2px;
+  width: 26px;
+  background-color: var(--color-text);
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* When the menu is open we morph the three bars into an X. */
+.nav.is-open .nav__bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav.is-open .nav__bar:nth-child(2) {
+  opacity: 0;
+}
+.nav.is-open .nav__bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* The menu is a dropdown panel on mobile. It is collapsed (max-height 0) by
+   default and expands when .is-open is added by main.js. */
+.nav__menu {
+  list-style: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-inline: 1.25rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.35s ease;
+  padding-block: 0;
+}
+.nav.is-open .nav__menu {
+  max-height: 24rem;
+  padding-block: var(--space-sm);
+}
+
+.nav__link {
+  text-decoration: none;
+  font-weight: 500;
+  padding-block: 0.4rem;
+  display: inline-block;
+  color: var(--color-text);
+  /* Color + glow ease in together over ~200ms (see :hover). */
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+.nav__link:hover {
+  color: var(--color-accent);
+  /* Subtle accent glow — soft and low-opacity so it reads as a gentle halo. */
+  text-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+/* The link for the section currently in view. main.js toggles this class as
+   the visitor scrolls; the heavier weight distinguishes it from a plain hover. */
+.nav__link.is-active {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1.5px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.theme-toggle:hover {
+  border-color: var(--color-accent);
+}
+/* The icon is a sun or moon drawn with a single emoji swapped per theme. */
+.theme-toggle__icon::before {
+  content: "☾"; /* light mode shows a moon = "switch to dark" */
+  font-size: 1rem;
+}
+[data-theme="dark"] .theme-toggle__icon::before {
+  content: "☀"; /* dark mode shows a sun = "switch to light" */
+}
+
+/* -----------------------------------------------------------------------------
+   4b. HERO
+   -------------------------------------------------------------------------- */
+/* Full-viewport hero. We use svh (small viewport height) so the mobile browser
+   chrome appearing/disappearing doesn't cause a jump, minus the sticky header's
+   height (measured into --header-h by main.js) so the content + scroll cue fit
+   the first screen exactly. The slow background sweep is a pure-CSS keyframe on
+   a linear-gradient's position — no JS interpolation loop. */
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - var(--header-h, 0px)); /* fallback for no svh */
+  min-height: calc(100svh - var(--header-h, 0px));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: var(--space-lg);
+  scroll-margin-top: 6rem;
+  background-image: linear-gradient(
+    120deg,
+    var(--hero-gradient-from),
+    var(--hero-gradient-to),
+    var(--hero-gradient-from)
+  );
+  background-size: 200% 200%;
+  animation: hero-gradient var(--hero-gradient-duration) ease-in-out infinite;
+}
+/* The readable column inside the full-bleed hero. */
+.hero__inner {
+  width: min(100% - 2.5rem, var(--max-width));
+  margin-inline: auto;
+}
+@keyframes hero-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.hero__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: var(--space-sm);
+}
+
+/* Headline holds two layers: the canonical text (real words for SEO + screen
+   readers) and the .hero__typed span the animation writes into. */
+.hero__headline {
+  position: relative;
+  font-size: var(--text-hero);
+  font-weight: 900;
+  margin-bottom: var(--space-md);
+}
+/* While JS is typing, hide the canonical text VISUALLY but keep it in the
+   accessibility tree (sr-only) so a screen reader announces the whole line once
+   rather than character by character. */
+.hero.is-animating .hero__headline-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+/* Reserve ~two lines so the subheadline below doesn't jump as phrases change. */
+.hero.is-animating .hero__headline {
+  min-height: 2.4em;
+}
+/* Blinking cursor — only rendered while the typing animation is running. */
+.hero.is-animating .hero__typed::after {
+  content: "";
+  display: inline-block;
+  width: 0.055em;
+  height: 0.95em;
+  margin-left: 0.05em;
+  vertical-align: -0.08em;
+  background-color: var(--color-accent);
+  animation: hero-cursor 1s steps(2, start) infinite;
+}
+@keyframes hero-cursor {
+  50% {
+    opacity: 0;
+  }
+}
+
+.hero__intro {
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  color: var(--color-muted);
+  margin-bottom: var(--space-md);
+  animation: rise 0.8s ease 0.15s both;
+}
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  animation: rise 0.8s ease 0.3s both;
+}
+
+/* Scroll-down cue, pinned bottom-center, with a gentle bounce. */
+.hero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-md);
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--color-muted);
+  text-decoration: none;
+  animation: hero-bounce 1.8s ease-in-out infinite;
+  transition: color 0.2s ease;
+}
+.hero__scroll:hover {
+  color: var(--color-accent);
+}
+/* Chevron drawn from two borders on a rotated box. */
+.hero__chevron {
+  display: block;
+  width: 13px;
+  height: 13px;
+  margin-top: -5px; /* optical centering of the V shape */
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+@keyframes hero-bounce {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(8px);
+  }
+}
+
+/* Reduced motion: hold everything still. The global rule near the top already
+   kills all animation/transition; this is an explicit, local guarantee for the
+   hero — gradient frozen, chevron parked, and (with main.js skipping the typing)
+   the full static headline shown with no cursor. The section stays fully legible. */
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .hero__scroll,
+  .hero__typed::after {
+    animation: none !important;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   4c. ABOUT
+   -------------------------------------------------------------------------- */
+.about__grid {
+  display: grid;
+  gap: var(--space-md);
+}
+.about__portrait {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1;
+  max-width: 240px;
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, var(--color-accent), var(--color-accent-soft));
+  box-shadow: var(--shadow-card);
+}
+.about__initials {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 3.5rem;
+  color: var(--color-surface);
+}
+.about__bio p {
+  color: var(--color-muted);
+  margin-bottom: var(--space-sm);
+}
+.about__facts {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  margin-top: var(--space-sm);
+}
+.about__facts li {
+  font-size: 0.95rem;
+  color: var(--color-muted);
+}
+.about__facts strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--color-text);
+}
+
+/* -----------------------------------------------------------------------------
+   4d. PROJECTS
+   -------------------------------------------------------------------------- */
+.projects__grid {
+  list-style: none;
+  display: grid;
+  gap: var(--space-md);
+  /* Positioning context for cards that are mid-exit (main.js pins them
+     absolutely so the rest of the grid can reflow around them). */
+  position: relative;
+}
+
+/* Filter controls above the grid. main.js builds the buttons from the cards'
+   data-type values, so this styles whatever it produces. */
+.projects__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+/* The container ships empty and is filled by JS. With JavaScript off it stays
+   empty, so collapse it entirely rather than leave a stray gap. */
+.projects__filters:empty {
+  display: none;
+}
+.filter-button {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background: none;
+  border: 1.5px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+.filter-button:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+/* The active filter. aria-pressed is the single source of truth — it drives
+   both the look and what screen readers announce, so there's no separate
+   class to keep in sync. */
+.filter-button[aria-pressed="true"] {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+/* Filtering choreography. Every card shares one transition so two things move
+   smoothly at once: position (the FLIP glide as the grid reflows, driven by
+   main.js) and opacity (cards fading in and out). The cubic-bezier gives the
+   glide a soft settle, like the card hover. The global reduced-motion rule
+   switches all of this off, and main.js skips the choreography to match. */
+.projects__grid li {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease;
+}
+/* A card on its way out: lifted out of the grid's flow so the survivors can
+   reflow into place, and fading + shrinking as it goes. main.js pins its box
+   with inline top/left/width/height at the exact spot it already occupied. */
+.projects__grid li.is-leaving {
+  position: absolute;
+  margin: 0;
+  opacity: 0;
+  transform: scale(0.94);
+  pointer-events: none;
+}
+/* A card arriving into the grid starts faded and slightly small; main.js clears
+   this on the next frame so it eases in as the others settle. */
+.projects__grid li.is-entering {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+.card {
+  position: relative; /* anchors the stretched .card__trigger overlay */
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* Lift uses a curve that rises just past its mark and settles, like a card
+     being picked up off a table; the shadow fades in over the same beat. */
+  transition: transform 0.28s cubic-bezier(0.34, 1.3, 0.64, 1),
+    box-shadow 0.28s ease;
+}
+.card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: var(--shadow-lift);
+}
+/* The whole card opens the lightbox. The title text IS the button (so the
+   accessible name is the project name, no duplication), and its ::after stretches
+   invisibly over the entire card to catch clicks anywhere on it. */
+.card__trigger {
+  all: unset;
+  cursor: pointer;
+}
+.card__trigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+/* Put the keyboard focus ring around the whole card, not just the title text. */
+.card__trigger:focus-visible {
+  outline: none;
+}
+.card:has(.card__trigger:focus-visible) {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+/* Placeholder thumbnails: each gets its own gradient so the grid feels alive
+   even before real screenshots go in. */
+.card__thumb {
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, #c8552a, #f0a868);
+}
+.card__thumb--two {
+  background: linear-gradient(135deg, #2a6f7c, #7fc6c0);
+}
+.card__thumb--three {
+  background: linear-gradient(135deg, #6a4c93, #c3a6e0);
+}
+.card__thumb--four {
+  background: linear-gradient(135deg, #3a7d44, #a8d49a);
+}
+.card__thumb--five {
+  background: linear-gradient(135deg, #b5476b, #e9a6bd);
+}
+.card__thumb--six {
+  background: linear-gradient(135deg, #3a5a8c, #9db9e0);
+}
+.card__body {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+.card__tag {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+.card__title {
+  font-size: var(--text-subheading);
+}
+.card__text {
+  color: var(--color-muted);
+  font-size: 0.98rem;
+  flex: 1;
+}
+.card__link {
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-accent);
+  margin-top: var(--space-xs);
+}
+.card__link:hover {
+  text-decoration: underline;
+}
+
+/* -----------------------------------------------------------------------------
+   4e. CONTACT
+   -------------------------------------------------------------------------- */
+.contact__grid {
+  display: grid;
+  gap: var(--space-md);
+}
+.contact__intro p {
+  color: var(--color-muted);
+  margin-bottom: var(--space-sm);
+}
+.contact__alt a {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.contact__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.field__label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.field__input {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  transition: border-color 0.2s ease;
+}
+.field__input::placeholder {
+  color: var(--color-muted);
+  opacity: 0.7;
+}
+.field__input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+/* Error state: a red border, kept red even while focused. main.js sets
+   aria-invalid="true" on the field, which doubles as the styling hook. */
+.field__input[aria-invalid="true"],
+.field__input[aria-invalid="true"]:focus {
+  border-color: var(--color-error);
+}
+.field__input--textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+/* Per-field error message shown under the input. Hidden entirely while empty,
+   so it adds no space (and no stray aria description) until there's an error. */
+.field__error {
+  color: var(--color-error);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.field__error:empty {
+  display: none;
+}
+.contact__status {
+  font-weight: 600;
+  color: var(--color-accent);
+  min-height: 1.2em;
+}
+
+/* -----------------------------------------------------------------------------
+   4f. FOOTER
+   -------------------------------------------------------------------------- */
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--space-lg);
+  padding-block: var(--space-md);
+  text-align: center;
+}
+.site-footer p {
+  max-width: none;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+/* -----------------------------------------------------------------------------
+   4g. BACK-TO-TOP BUTTON
+   A small floating button pinned to the bottom-right. It starts invisible and
+   non-interactive; main.js adds .is-visible once the visitor scrolls past the
+   hero, fading it into view.
+   -------------------------------------------------------------------------- */
+.to-top {
+  position: fixed;
+  right: var(--space-md);
+  bottom: var(--space-md);
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 999px;
+  background-color: var(--color-accent);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  /* Hidden + un-clickable until revealed. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+}
+.to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.to-top:hover {
+  transform: translateY(-2px);
+}
+.to-top__arrow {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* -----------------------------------------------------------------------------
+   4h-i. SCROLL PROGRESS BAR
+   A thin accent bar pinned across the very top of the viewport that fills from
+   left to right as the page scrolls, sitting just above the sticky header.
+   main.js scales it on the X axis (transform is cheaper to animate than width)
+   from the page's scroll position; transform-origin pins the growth to the left.
+   -------------------------------------------------------------------------- */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 60; /* above the sticky header (z-index 50) */
+  background-color: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  /* No transition: the bar mirrors the scroll position directly and must track
+     it frame-for-frame, so any easing would only introduce lag. */
+}
+
+/* -----------------------------------------------------------------------------
+   4h. PROJECT LIGHTBOX
+   A native <dialog> (opened with showModal() in main.js) shown as a centered
+   panel over a dimmed, blurred backdrop. Everything is built from the design
+   tokens, so dark mode comes for free. The .is-open class drives a gentle
+   fade/scale entrance; the global reduced-motion rule neutralizes it.
+   -------------------------------------------------------------------------- */
+.lightbox {
+  /* Reset the user-agent dialog chrome and rebuild it on our tokens. */
+  padding: 0;
+  border: none;
+  /* Re-center the modal: the global `* { margin: 0 }` reset clobbers the
+     user-agent `margin: auto` that normally centers a <dialog>, so restore it. */
+  margin: auto;
+  width: min(100% - 2.5rem, 560px);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  /* Entrance: start slightly down and shrunk, then settle (see .is-open). */
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.lightbox.is-open {
+  opacity: 1;
+  transform: none;
+}
+
+/* The dimmed, blurred area behind the panel — echoes the header's blur. */
+.lightbox::backdrop {
+  background-color: rgba(20, 14, 8, 0.55);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.lightbox.is-open::backdrop {
+  opacity: 1;
+}
+
+/* Round close button in the corner — same visual family as .to-top. */
+.lightbox__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 999px;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #fff;
+  background-color: rgba(20, 14, 8, 0.35);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.18s ease;
+}
+.lightbox__close:hover {
+  background-color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+/* The enlarged "image": the clicked card's gradient is copied in via JS. The
+   16/9 banner is ready to host a real background image later with no rework. */
+.lightbox__banner {
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  background-position: center;
+}
+
+.lightbox__body {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.lightbox__tag {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+.lightbox__title {
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+}
+.lightbox__text {
+  color: var(--color-muted);
+}
+.lightbox__cta {
+  align-self: flex-start;
+  margin-top: var(--space-sm);
+}
+
+/* While the lightbox is open, lock the page behind it from scrolling. */
+html.has-modal {
+  overflow: hidden;
+}
+
+/* -----------------------------------------------------------------------------
+   5. RESPONSIVE — DESKTOP OVERRIDES (the mobile-first layout grows up here)
+   At 760px and wider we: show the full nav inline, hide the hamburger, and
+   switch the about/projects/contact grids to multiple columns.
+   -------------------------------------------------------------------------- */
+@media (min-width: 760px) {
+  /* Sections breathe more on wider screens. This one override lifts the rhythm
+     for the whole page at once, since every section reads from --section-space. */
+  :root {
+    --section-space: var(--space-xl);
+  }
+
+  /* Navigation becomes a horizontal bar again. */
+  .nav__toggle {
+    display: none;
+  }
+  .nav__menu {
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-md);
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+    background: none;
+    border: none;
+  }
+
+  /* About: portrait beside the bio. */
+  .about__grid {
+    grid-template-columns: 240px 1fr;
+    align-items: start;
+    gap: var(--space-lg);
+  }
+
+  /* Projects: two-up card grid. */
+  .projects__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Contact: intro beside the form. */
+  .contact__grid {
+    grid-template-columns: 1fr 1.1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+}
+

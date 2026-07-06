@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maya Okonkwo — Product Designer & Maker</title>
+  <meta
+    name="description"
+    content="Maya Okonkwo designs calm, useful things for the messy, loud web. A product designer who prototypes in the browser across UX, design systems, and front-end."
+  />
+
+  <!-- Canonical URL. Swap the domain if the site lives somewhere else. -->
+  <link rel="canonical" href="https://mayaokonkwo.com/" />
+
+  <!--
+    Social sharing (Open Graph + Twitter). These decide the card people see when
+    the link lands in LinkedIn, Slack, iMessage, X, and the like. Three things to
+    set for real before launch:
+      1. Every URL below must be ABSOLUTE (crawlers won't resolve relative paths),
+         so replace mayaokonkwo.com with the real domain if it differs.
+      2. Add a share image at images/og-image.png sized 1200x630. Without it most
+         platforms show no artwork (or shrink the favicon), so the card looks bare.
+      3. If Maya has an X handle, add:
+         <meta name="twitter:site" content="@handle" />
+  -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Maya Okonkwo" />
+  <meta property="og:title" content="Maya Okonkwo — Product Designer & Maker" />
+  <meta
+    property="og:description"
+    content="Maya Okonkwo designs calm, useful things for the messy, loud web. A product designer who prototypes in the browser across UX, design systems, and front-end."
+  />
+  <meta property="og:url" content="https://mayaokonkwo.com/" />
+  <meta property="og:image" content="https://mayaokonkwo.com/images/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Maya Okonkwo, product designer and maker" />
+  <meta property="og:locale" content="en_US" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Maya Okonkwo — Product Designer & Maker" />
+  <meta
+    name="twitter:description"
+    content="Maya Okonkwo designs calm, useful things for the messy, loud web. A product designer who prototypes in the browser across UX, design systems, and front-end."
+  />
+  <meta name="twitter:image" content="https://mayaokonkwo.com/images/og-image.png" />
+  <meta name="twitter:image:alt" content="Maya Okonkwo, product designer and maker" />
+
+  <!--
+    Set the saved theme BEFORE the page paints so dark-mode users never see a
+    white flash. This tiny inline script reads localStorage and falls back to
+    the visitor's system preference. The rest of the JS lives in scripts/main.js.
+  -->
+  <script>
+    (function applySavedThemeEarly() {
+      const saved = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const theme = saved || (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+
+  <!-- Fonts: Fraunces (display serif) + Spline Sans (body). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,900&family=Spline+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+
+<body>
+  <!-- Skip link: lets keyboard users jump straight to the content. -->
+  <a class="skip-link" href="#hero">Skip to content</a>
+
+  <!--
+    Scroll-progress bar: a thin accent bar pinned across the very top that fills
+    from left to right as the page scrolls. It's decorative (the scrollbar
+    already conveys position to assistive tech), so it's hidden from screen
+    readers. main.js scales it from the scroll position — see setupScrollProgress().
+  -->
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+  <!-- ===================== HEADER / NAVIGATION ===================== -->
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary">
+      <a class="nav__brand" href="#hero">Maya<span class="nav__dot">.</span></a>
+
+      <!--
+        Hamburger button. It is hidden on desktop and shown on mobile via CSS.
+        aria-expanded tells screen readers whether the menu is open; main.js
+        flips it when the menu toggles.
+      -->
+      <button
+        class="nav__toggle"
+        id="navToggle"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="navMenu"
+      >
+        <span class="nav__bar"></span>
+        <span class="nav__bar"></span>
+        <span class="nav__bar"></span>
+      </button>
+
+      <ul class="nav__menu" id="navMenu">
+        <li><a class="nav__link" href="#about">About</a></li>
+        <li><a class="nav__link" href="#projects">Work</a></li>
+        <li><a class="nav__link" href="#contact">Contact</a></li>
+        <li>
+          <!-- Dark-mode toggle. The icon is swapped with CSS based on theme. -->
+          <button
+            class="theme-toggle"
+            id="themeToggle"
+            aria-label="Switch color theme"
+          >
+            <span class="theme-toggle__icon" aria-hidden="true"></span>
+            <span class="theme-toggle__label">Theme</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ===================== HERO ===================== -->
+    <!--
+      Full-viewport animated hero. The gradient shift, the typing headline, and
+      the chevron bounce are all CSS/JS animations that are switched off under
+      prefers-reduced-motion (see styles/main.css and scripts/main.js).
+    -->
+    <section class="hero" id="hero">
+      <div class="hero__inner">
+        <p class="hero__eyebrow">Product Designer &amp; Maker</p>
+        <h1 class="hero__headline">
+          <!--
+            Canonical headline: this is the REAL text for SEO and screen readers,
+            and the visible fallback if JavaScript is off or reduced-motion is on.
+            main.js hides this visually (but keeps it in the accessibility tree, so
+            screen readers get the whole line once) and types the phrases into
+            .hero__typed instead. Keep this in sync with the first phrase in main.js.
+          -->
+          <span class="hero__headline-text"
+            >I design calm, useful things for the messy, loud web.</span
+          >
+          <!-- Animated typing target — filled by JS, hidden from assistive tech. -->
+          <span class="hero__typed" id="heroTyped" aria-hidden="true"></span>
+        </h1>
+        <p class="hero__intro">
+          Hi, I'm Maya. For the last eight years I've helped startups turn tangled
+          ideas into interfaces people actually enjoy using. I care about clarity,
+          honest motion, and the small details nobody notices until they're missing.
+        </p>
+        <div class="hero__actions">
+          <a class="button button--primary" href="#projects">See my work</a>
+          <a class="button button--ghost" href="#contact">Get in touch</a>
+        </div>
+      </div>
+
+      <!--
+        Scroll cue: a real link, so it is keyboard-focusable and actually scrolls
+        to the next section (About) on click or Enter. The chevron is decorative.
+      -->
+      <a class="hero__scroll" href="#about" aria-label="Scroll to content">
+        <span class="hero__chevron" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <!-- ===================== ABOUT ===================== -->
+    <section class="about section" id="about">
+      <p class="section__label">About</p>
+      <div class="about__grid">
+        <div class="about__portrait" aria-hidden="true">
+          <!--
+            Placeholder portrait. Drop a real image into images/ and point this
+            <img> at it when you have one.
+          -->
+          <span class="about__initials">MO</span>
+        </div>
+        <div class="about__bio">
+          <h2 class="section__heading">
+            A designer who likes to get her hands in the code.
+          </h2>
+          <p>
+            I started out as a print designer, fell hard for the web, and never
+            looked back. These days I split my time between shaping product
+            strategy and prototyping in the browser, because the best way to
+            know if an idea works is to feel it move.
+          </p>
+          <p>
+            When I'm not designing, you'll find me restoring an old film camera,
+            over-watering my plants, or losing an argument with my cat about
+            who owns the desk chair.
+          </p>
+          <ul class="about__facts">
+            <li><strong>8+ years</strong> designing products</li>
+            <li><strong>40+ projects</strong> shipped end to end</li>
+            <li><strong>Remote</strong> from Lisbon, Portugal</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PROJECTS ===================== -->
+    <section class="projects section" id="projects">
+      <p class="section__label">Selected Work</p>
+      <h2 class="section__heading">A few things I'm proud of.</h2>
+
+      <!--
+        Filter controls. These buttons are BUILT BY JS (setupProjectFilters in
+        scripts/main.js) from the cards' own data-type values, so the list always
+        matches what's really in the grid — add a project and its type appears
+        here automatically. With JS off the container stays empty and every
+        project simply shows, so there are never any dead buttons.
+      -->
+      <div
+        class="projects__filters"
+        id="projectFilters"
+        role="group"
+        aria-label="Filter projects by type"
+      ></div>
+
+      <!--
+        Placeholder project cards. Each card is an <article> so it stands on its
+        own for assistive tech. Swap the text and add a real link when ready.
+      -->
+      <ul class="projects__grid">
+        <li data-type="Mobile App">
+          <article class="card">
+            <div class="card__thumb card__thumb--one" aria-hidden="true"></div>
+            <div class="card__body">
+              <p class="card__tag">Fintech · Mobile App</p>
+              <h3 class="card__title">
+                <button class="card__trigger" type="button">Tide Budgeting</button>
+              </h3>
+              <p class="card__text">
+                A gentle money app that helps freelancers smooth out unpredictable
+                income without the anxiety of a spreadsheet.
+              </p>
+            </div>
+          </article>
+        </li>
+
+        <li data-type="Web Platform">
+          <article class="card">
+            <div class="card__thumb card__thumb--two" aria-hidden="true"></div>
+            <div class="card__body">
+              <p class="card__tag">Healthcare · Web Platform</p>
+              <h3 class="card__title">
+                <button class="card__trigger" type="button">Clearpath Clinics</button>
+              </h3>
+              <p class="card__text">
+                A booking system that cut no-show rates by a third by making
+                appointments feel less like paperwork and more like a reminder
+                from a friend.
+              </p>
+            </div>
+          </article>
+        </li>
+
+        <li data-type="Design System">
+          <article class="card">
+            <div class="card__thumb card__thumb--three" aria-hidden="true"></div>
+            <div class="card__body">
+              <p class="card__tag">Education · Design System</p>
+              <h3 class="card__title">
+                <button class="card__trigger" type="button">Kindle Learning Kit</button>
+              </h3>
+              <p class="card__text">
+                A flexible component library that let a small team ship a dozen
+                course products without redesigning a single button.
+              </p>
+            </div>
+          </article>
+        </li>
+
+        <li data-type="Data Viz">
+          <article class="card">
+            <div class="card__thumb card__thumb--four" aria-hidden="true"></div>
+            <div class="card__body">
+              <p class="card__tag">Climate · Data Viz</p>
+              <h3 class="card__title">
+                <button class="card__trigger" type="button">Greenline Reports</button>
+              </h3>
+              <p class="card__text">
+                An annual impact report that turned a 90-page PDF into a scrollable
+                story people actually finished reading.
+              </p>
+            </div>
+          </article>
+        </li>
+
+        <li data-type="Mobile App">
+          <article class="card">
+            <div class="card__thumb card__thumb--five" aria-hidden="true"></div>
+            <div class="card__body">
+              <p class="card__tag">Wellness · Mobile App</p>
+              <h3 class="card__title">
+                <button class="card__trigger" type="button">Quiet Hours</button>
+              </h3>
+              <p class="card__text">
+                A sleep and focus companion with no streaks and no guilt — just a
+                calmer way to put the day down and pick tomorrow back up.
+              </p>
+            </div>
+          </article>
+        </li>
+
+        <li data-type="Web Platform">
+          <article class="card">
+            <div class="card__thumb card__thumb--six" aria-hidden="true"></div>
+            <div class="card__body">
+              <p class="card__tag">Community · Web Platform</p>
+              <h3 class="card__title">
+                <button class="card__trigger" type="button">Common Table</button>
+              </h3>
+              <p class="card__text">
+                A neighborhood platform for sharing meals, tools, and skills that
+                feels like a note on the fridge, not another noisy social feed.
+              </p>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ===================== CONTACT ===================== -->
+    <section class="contact section" id="contact">
+      <p class="section__label">Contact</p>
+      <div class="contact__grid">
+        <div class="contact__intro">
+          <h2 class="section__heading">Let's make something good.</h2>
+          <p>
+            Have a project in mind, or just want to say hello? Fill out the form
+            and I'll get back to you within a couple of days.
+          </p>
+          <p class="contact__alt">
+            Prefer email? <a href="mailto:hello@mayaokonkwo.com">hello@mayaokonkwo.com</a>
+          </p>
+        </div>
+
+        <!--
+          The fields keep native `required` + type="email" so the form still
+          validates if JavaScript is off. When JS runs it turns native validation
+          off (form.noValidate) and does one simple thing: a styled, on-page
+          email-format check — a red border plus a short message under the field.
+          There's no backend, so a valid submit just shows a thank-you and resets.
+        -->
+        <form class="contact__form" id="contactForm">
+          <div class="field">
+            <label class="field__label" for="name">Name</label>
+            <input
+              class="field__input"
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Your name"
+              autocomplete="name"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="email">Email</label>
+            <input
+              class="field__input"
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+              aria-describedby="emailError"
+            />
+            <p class="field__error" id="emailError"></p>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="message">Message</label>
+            <textarea
+              class="field__input field__input--textarea"
+              id="message"
+              name="message"
+              rows="5"
+              placeholder="Tell me a little about your project..."
+              required
+            ></textarea>
+          </div>
+
+          <button class="button button--primary button--full" type="submit">
+            Send message
+          </button>
+
+          <!-- Polite live region: screen readers announce the thank-you note. -->
+          <p class="contact__status" id="formStatus" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Maya Okonkwo. Designed and built with care.</p>
+  </footer>
+
+  <!--
+    Back-to-top button. Hidden by default; main.js adds .is-visible once the
+    visitor scrolls past the hero, and clicking it scrolls smoothly to the top.
+  -->
+  <button class="to-top" id="toTop" type="button" aria-label="Back to top">
+    <span class="to-top__arrow" aria-hidden="true">↑</span>
+  </button>
+
+  <!--
+    Project lightbox. A native <dialog> opened with showModal(), so the browser
+    handles focus-trapping, Escape-to-close, and returning focus to the card.
+    main.js fills the title/tag/description and the banner gradient from whichever
+    card was clicked. The × and the CTA carry data-close so a single handler shuts
+    everything; clicking the dimmed backdrop closes it too.
+  -->
+  <dialog
+    class="lightbox"
+    id="lightbox"
+    aria-labelledby="lightboxTitle"
+    aria-describedby="lightboxText"
+  >
+    <button class="lightbox__close" type="button" aria-label="Close" data-close>
+      ×
+    </button>
+    <div class="lightbox__banner" id="lightboxBanner" aria-hidden="true"></div>
+    <div class="lightbox__body">
+      <p class="lightbox__tag" id="lightboxTag"></p>
+      <h2 class="lightbox__title" id="lightboxTitle"></h2>
+      <p class="lightbox__text" id="lightboxText"></p>
+      <a
+        class="button button--primary lightbox__cta"
+        id="lightboxCta"
+        href="#contact"
+        data-close
+        >View case study →</a
+      >
+    </div>
+  </dialog>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>
