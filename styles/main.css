@@ -561,19 +561,18 @@ img {
   gap: var(--space-md);
 }
 .about__portrait {
-  display: grid;
-  place-items: center;
   aspect-ratio: 1 / 1;
   max-width: 240px;
   border-radius: var(--radius);
+  overflow: hidden; /* clip the photo to the rounded corners */
+  /* Warm tint shown behind the photo while it loads. */
   background: linear-gradient(145deg, var(--color-accent), var(--color-accent-soft));
   box-shadow: var(--shadow-card);
 }
-.about__initials {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 3.5rem;
-  color: var(--color-surface);
+.about__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* fill the square without distorting the portrait */
 }
 .about__bio p {
   color: var(--color-muted);
@@ -715,22 +714,35 @@ img {
    even before real screenshots go in. */
 .card__thumb {
   aspect-ratio: 16 / 10;
-  background: linear-gradient(135deg, #c8552a, #f0a868);
+  /* A themed tint shows through while the screenshot loads (and stays as the
+     look for cards that don't have a screenshot yet). */
+  background-color: var(--color-accent-soft);
+  background-image: linear-gradient(135deg, #c8552a, #f0a868);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* Real project screenshots. Set as background-image (not <img>) so the lightbox
+   can copy it straight onto its banner — see setupProjectLightbox(), which reads
+   the thumb's computed background-image, exactly as it did with the gradients. */
+.card__thumb--one {
+  background-image: url("../images/project-tide-budgeting.jpg");
 }
 .card__thumb--two {
-  background: linear-gradient(135deg, #2a6f7c, #7fc6c0);
+  background-image: url("../images/project-clearpath-clinics.jpg");
 }
 .card__thumb--three {
-  background: linear-gradient(135deg, #6a4c93, #c3a6e0);
+  background-image: url("../images/project-kindle-learning-kit.jpg");
 }
 .card__thumb--four {
-  background: linear-gradient(135deg, #3a7d44, #a8d49a);
+  background-image: url("../images/project-greenline-reports.jpg");
 }
+/* Cards without a screenshot yet keep a themed gradient. */
 .card__thumb--five {
-  background: linear-gradient(135deg, #b5476b, #e9a6bd);
+  background-image: linear-gradient(135deg, #b5476b, #e9a6bd);
 }
 .card__thumb--six {
-  background: linear-gradient(135deg, #3a5a8c, #9db9e0);
+  background-image: linear-gradient(135deg, #3a5a8c, #9db9e0);
 }
 .card__body {
   padding: var(--space-md);

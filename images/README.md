@@ -1,14 +1,19 @@
 # images/
 
-Drop your real assets here — a portrait for the About section and screenshots
-for each project card.
+Real assets used by the site.
 
-How to wire them up:
+| File | Used by |
+|---|---|
+| `portrait-maya.jpg` | About section portrait (`.about__photo` in `index.html`) |
+| `project-tide-budgeting.jpg` | Tide Budgeting card (`.card__thumb--one` in `styles/main.css`) |
+| `project-clearpath-clinics.jpg` | Clearpath Clinics card (`.card__thumb--two`) |
+| `project-kindle-learning-kit.jpg` | Kindle Learning Kit card (`.card__thumb--three`) |
+| `project-greenline-reports.jpg` | Greenline Reports card (`.card__thumb--four`) |
+| `og-image.png` | Social share image (1200×630, `og:image` / `twitter:image`) |
 
-- **Portrait:** in `index.html`, replace the `.about__portrait` block (the one
-  showing the "MO" initials) with an `<img src="images/portrait.jpg" alt="..." />`.
-- **Project thumbnails:** swap each `.card__thumb` gradient `<div>` for an
-  `<img src="images/project-one.jpg" alt="..." />`, or set the image as a
-  `background-image` on the existing `.card__thumb` rule in `styles/main.css`.
+Project screenshots are set as `background-image` on the `.card__thumb` rules,
+which lets the lightbox reuse the same image on its banner automatically.
 
-Until then, the site uses tasteful gradient placeholders so it looks complete.
+The two newest cards (Quiet Hours, Common Table) don't have screenshots yet, so
+they still use a themed gradient (`.card__thumb--five` / `--six`). To add one,
+drop a ~1280×800 image here and give its card a `background-image` rule to match.
